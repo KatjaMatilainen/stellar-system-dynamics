@@ -1,0 +1,37 @@
+#--------------------------------------------------------------------
+#JOBS/plummer_example2014_collapse.job
+#--------------------------------------------------------------------
+#Example of using  Hernquist'n tree code 
+#Simulatiom output to ../RESULTS/plummer_example2014_collapse directory
+
+#this file is executed from JOBS-directory with the command
+# source plummer_example2014_collapse.job &
+
+#--------------------------------------------------------------------
+#Create the simulation output directory (remove first if it exists before)
+
+  unalias rm
+  cd ../RESULTS
+  rm -r plummer_example2014_collapse	
+  mkdir plummer_example2014_collapse
+
+#Move to the newly created directory
+
+  cd plummer_example2014_collapse
+
+#Tree code assumes that:
+#  Particle position+ velocities in file TREEBI
+#  Simulation parameter values   in file TREEPAR
+#--> copy the files we created from JOBS directory to these fixed names
+# (plummer_example.TREEBI  made with make_plummer.pro)
+
+cp -rp ../../JOBS/plummer_example2014_collapse.TREEBI ./TREEBI
+cp -rp ../../JOBS/plummer_example2014_collapse.TREEPAR ./TREEPAR
+
+# Run the simulation
+
+../../CODE/tree_2014.exe > plummer_example2010.output
+
+
+
+

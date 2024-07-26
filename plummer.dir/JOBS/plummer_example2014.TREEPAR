@@ -1,0 +1,23 @@
+C**********Basic input parameters**********
+plummer_example2014      headline
+ 500                     nsteps
+ 50                      noutbod
+ 50                      noutlog
+ 0.1                     dtime
+ 0.7                     tol
+ 0.05                    eps
+ .TRUE.            inpteps
+ .FALSE.           variabls
+ 30                nsvolume
+ 0.05              nsvtol
+ .TRUE.            usequad
+ .FALSE.           dgravsum
+ .FALSE.           restart
+C**********Individual time steps**********
+ 1                 inittbin
+ 1                 mintstep
+ 10000.            etol
+ 64                ntvector
+C**********Miscellaneous parameters**********
+ .TRUE.                  selfgrav
+2,300,5.                 noutani,niraf,biraf

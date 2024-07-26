@@ -1,0 +1,275 @@
+==========================================================
+     plummer_exercise_250314.README
+==========================================================
+
+
+In this exercise we create a particle distribution 
+(set of N position and velocity vectors) following 
+a Plummer-sphere phase-space distribution function.
+
+We check using Hernquist's tree-code that the created 
+particle distribution is a self-consistent solution of 
+time-independent Boltzmann equation + Poisson equation
+(= the simulated distribution does not evolve with time).
+
+Before starting writing our Plummer-procedure, check
+that the tree-code + related IDL analysis programs work,
+by using the provided example data.
+
+  
+============
+WHAT TO DO:
+===========
+
+===============================
+A) Check that treecode works
+===============================
+
+
+1) Copy the directory /wrk/hsalo/TJD2013_plummer.dir 
+
+  Contains material needed for tree-code simulation
+  + example routines for creating Plummer spheres 
+  (first make your own procedure before checking these!)
+
+  subdirectories:
+  CODE      -    source code
+  JOBS      -    job-files + simulation input files 
+  RESULTS   -    output 
+  IDL       -    various analysis-procedures
+  JOB_EXAMPLES - example job-files
+
+
+2) Add the TJD2013_plummer.dir directory into your IDL-path in .cshrc
+
+  (setenv IDL_PATH ....   :+~/TJD2013_PLUMMER.dir)
+  remember source .cshrc
+
+
+3) Compile the tree-code in subdirectory CODE
+
+  g77 -O3 tree3_hs_old.f tree1_linux.f bbani2006_tree.f -o tree_2014.exe
+
+  [this version has added animation output]
+
+
+4)  Start a test simulation
+
+   Copy from subdirectory JOBS_EXAMPLES to JOBS:
+
+   cd JOBS
+   cp -rp ../JOBS_EXAMPLES/plummer_example2014.job ../JOBS
+   cp -rp ../JOBS_EXAMPLES/plummer_example2014.TREEPAR ../JOBS
+   cp -rp ../JOBS_EXAMPLES/plummer_example2014.TREEBI ../JOBS
+
+
+   source plummer_example2014.job &
+
+   NOTE: gives an 'error message' if a new simulation is started
+         Nothing to worry: just complains there is no old directory to remove
+ 
+
+5) Make sure the simulation works by checking its output
+   Giving program name without arguments -> brief help
+
+   OPEN ANOTHER XTERMINAL!
+
+   cd RESULTS
+ 
+   idl
+
+   treelog,dire='plummer_example2014'       - logfile info
+   tree_ani_2010,'plummer_example2014'      - animation  
+   tree_read,'plummer_example2014',/auto    - reads snapshots
+                                            -> makes snaphost:
+					       plummer_example2014sxyzNN    (=idl-savefiles)
+                                              displays velocity dispersions and fractional masses
+					      (see its help message)
+   What do you observe?
+
+
+;   you can restore snaphost from simulations:
+   restore plummer_example2014/*sxyz0
+   restore plummer_example2014/*sxyz10
+
+   Try plot_3d.pro for displaying 
+
+
+
+6) Try another example run
+
+   cp -rp ../JOBS_EXAMPLES/plummer_example2014_collapse.job ../JOBS
+   cp -rp ../JOBS_EXAMPLES/plummer_example2014_collapse.TREEPAR ../JOBS
+   cp -rp ../JOBS_EXAMPLES/plummer_example2014_collapse.TREEBI ../JOBS
+
+   source plummer_example2014_collapse.job &
+
+
+   What do you observe now?
+
+
+
+
+=========================================================
+B)   Make your own procedure for creating initial values
+=========================================================
+
+
+1) Read the instructions in  plummer_sphere_250314.pdf
+
+   Gives background (similar material as in Lectures but with more details)
+   +detailed instructions in the end
+
+
+2) Write IDL procedure which creates initial positions & velocities
+   for N particles and writes them to TREEBI-file
+
+   Need to give values to:
+     N   number of particles 
+     b   scale readius
+     M   total mass
+     G   gravity constant
+     eps softening length: use 0.01 b
+
+
+ The format of writing the TREEBI-file is
+
+ printf,1,npart                              ;N
+ printf,1,ndim                               ;dimension = 3
+ printf,1,time 
+ for i=0l,npart-1 do begin
+    printf,1,pmass(i)                       ;masses
+ endfor
+ for i=0l,npart-1 do begin
+    printf,1,xx(i),yy(i),zz(i)              ;positions
+ endfor
+ for i=0l,npart-1 do begin
+    printf,1,vx(i),vy(i),vz(i)              ;velocities
+ endfor
+ for i=0l,npart-1 do begin
+    printf,1,eps(i)                         ;softening lengths
+ endfor
+
+
+
+3) Set up a simulation with the TREEBI-file you created
+
+ - copy the TREEBI-file to JOBS directory to a new name   (eg. plummer_test.TREEBI)
+
+ - make a corresponding TREEPAR-file   
+   using plummer_example2014.TREEPAR as an example:
+
+#=====================================================================================
+#=====================================================================================
+C**********Basic input parameters**********
+plummer_example2014      headline
+ 500                     nsteps
+ 50                      noutbod
+ 50                      noutlog
+ 0.1                     dtime
+ 0.7                     tol
+ 0.05                    eps
+ .TRUE.            inpteps
+ .FALSE.           variabls
+ 30                nsvolume
+ 0.05              nsvtol
+ .TRUE.            usequad
+ .FALSE.           dgravsum
+ .FALSE.           restart
+C**********Individual time steps**********
+ 1                 inittbin
+ 1                 mintstep
+ 10000.            etol
+ 64                ntvector
+C**********Miscellaneous parameters**********
+ .TRUE.                  selfgrav
+2,300,5.                 nout,npix,range
+-------------------------------------------------------------------------
+#=====================================================================================
+#=====================================================================================
+
+eg. cp  plummer_example2014.TREEPAR   plummer_test.TREEPAR
+
+Change (if needed):
+
+headline         run identification (use same as in file names)  eg.   plummer_test
+nsteps           total number of steps
+dtime            timestep 
+nout             animation interval
+npix             animation pixel-size
+range            animation range
+
+
+
+
+copy an existing job-file into new one
+
+eq. cp  plummer_example2014.job   plummer_test.job
+
+
+#=====================================================================================
+#=====================================================================================
+#--------------------------------------------------------------------
+#JOBS/plummer_example2014.job
+#--------------------------------------------------------------------
+#Example of using  Hernquist'n tree code 
+#Simulatiom output to ../RESULTS/plummer_example2014 directory
+
+#this file is executed from JOBS-directory with the command
+# source plummer_example2014.job &
+
+#--------------------------------------------------------------------
+#Create the simulation output directory (remove first if it exists before)
+
+  unalias rm
+  cd ../RESULTS
+  rm -r plummer_example2014	
+  mkdir plummer_example2014
+
+#Move to the newly created directory
+
+  cd plummer_example2014
+
+#Tree code assumes that:
+#  Particle position+ velocities in file TREEBI
+#  Simulation parameter values   in file TREEPAR
+#--> copy the files we created from JOBS directory to these fixed names
+# (plummer_example.TREEBI  made with make_plummer.pro)
+
+cp -rp ../../JOBS/plummer_example2014.TREEBI ./TREEBI
+cp -rp ../../JOBS/plummer_example2014.TREEPAR ./TREEPAR
+
+# Run the simulation
+
+../../CODE/tree_2014.exe > plummer_example2010.output
+
+#=====================================================================================
+#=====================================================================================
+
+
+*  Change the names of input/output files!
+
+* run it ----> source plummer_test.job &
+
+* and check whether the simulations remains in equilibrium:
+
+ (use tree_ani_2010, tree_read etc...)
+
+
+
+4) Once you can create succesfull steady-state systems, start playing with them
+
+- make Plummer density distribution where velocities are too small or large
+
+- flatten the Plummer sphere
+
+- make 2 plummmer sphere in circular orbit (for example 5 times the scale radius)
+
+- make two Plummer spheres collide with different velocities
+
+  (see tree_join.pro procedure for merging together two treebi-files)
+
+
+
+
+
