@@ -1,0 +1,227 @@
+------------------------------------------
+tahan tiedostoon on koottu
+testi1,testi2,testi3,testi4  data-tiedostot
+ja niita lukevat proseduurit
+test1_read jne.
+
+------------------------------------------
+testi1
+------------------------------------------
+10	20	30
+30	60	70
+
+;***********************
+; testi1_read.pro
+; lukee tiedoston testi1
+;*********************** 
+
+openr,1,'testi1'
+readf,1,a,b,c
+readf,1,d,e,f
+close,1
+
+print,a,b,c,d,e,f
+end
+
+------------------------------------------
+testi2
+------------------------------------------
+1.	4.	7.
+3.	3.	3.
+2.	7.	8.
+5.	8.	3.
+5.	8.	9.
+
+;***********************
+; testi2_read.pro
+; lukee tiedoston testi2
+;*********************** 
+
+print,'luetaan seuraavan nakoinen tiedosto'
+spawn,'cat testi2'
+
+print,' '
+print,' '
+print,'eli muotoa'
+print,' x1  y1  z1'
+print,' .....'
+print,' xn  yn  zn'
+print,' '
+
+print,'luetaan tavalla 1: rivi kerrallaan'
+print,'silla ei tiedeta rivien maaraa'
+print,' '
+openr,1,'testi2'
+x=fltarr(100) & y=x & z=x	;varauduttu sataan pisteeseen
+lask=0				
+while NOT EOF(1) DO BEGIN	;jatketaan jos ei ole kohdattu
+				;tiedoston loppua
+readf,1,dum1,dum2,dum3		;luetaan skalaareina, silla vektorin
+				;alkiota ei voi suoraan lukea
+x(lask)=dum1
+y(lask)=dum2
+z(lask)=dum3
+lask=lask+1
+endwhile
+
+x=x(0:lask-1)
+y=y(0:lask-1)
+z=z(0:lask-1)
+close,1
+
+print,'TARKISTUS:'
+print,'x'
+print,x
+print,'y'
+print,y
+print,'z'
+print,z
+
+print,' '
+print,'luetaan tavalla 2: vektoreina'
+print,'oletetaan etta tiedetaan  tiedostossa olevan 4 rivia'
+print,'kullakin 3 lukua'
+print,' '
+openr,1,'testi2'
+n=4
+temp=fltarr(3,n)	;luodaan valiaikainen taulukko
+readf,1,temp		;luetaan siihen tiedostosta kaikki kerralla
+x=temp(0,*)
+y=temp(1,*)
+z=temp(2,*)
+close,1
+
+print,'TARKISTUS:'
+print,'x'
+print,x
+print,'y'
+print,y
+print,'z'
+print,z
+
+print,'huomaa etta ens tapa antoi vaakavektoreina jalkimmainen'
+print,'pystyvektoreina (voidaan muuttaa TRANSPOSE-komennolla'
+
+end
+
+------------------------------------------
+testi3
+------------------------------------------
+5
+1.	5.	8.	9.	8.
+4.	7.	9.	11.	7.
+3.	2.	9.	12.	7.
+
+;***********************
+; testi3_read.pro
+; lukee tiedoston testi3
+;*********************** 
+
+print,'luetaan seuraavan nakoinen tiedosto'
+spawn,'cat testi3'		
+
+print,' '
+print,' '
+print,'eli muotoa'
+print,'n'
+print,'x1 x2 ... xn'
+print,'y1 y2 ... yn'
+print,'z1 z2 ... zn'
+print,' '
+
+openr,1,'testi3'
+readf,1,n		;luetaan alkioiden lukumaara
+x=fltarr(n)		;luodaan taulukkot
+y=x
+z=x
+
+readf,1,x		;luetaan tiedostosta vektori x
+readf,1,y		;luetaan tiedostosta vektori y
+readf,1,z		;luetaan tiedostosta vektori z
+close,1
+
+print,' '
+print,'TARKISTUS:'
+print,'x'
+print,x
+print,'y'
+print,y
+print,'z'
+print,z
+
+end
+
+------------------------------------------
+testi4
+------------------------------------------
+
+1.	4.	7.	huono
+3.	7.	8.	hyva
+4.	8.	4.	hyva
+
+;***********************
+; testi4_read.pro
+; lukee tiedoston testi4
+;*********************** 
+
+print,'luetaan seuraavan nakoinen tiedosto'
+spawn,'cat testi4'			
+
+;spawn-komennolla voidaan antaa UNIX-komentoja IDL-proseduurista'
+;vastaa interaktiivisen tilan $-merkkia (sitaei voi kayttaa ohjelmassa!)
+
+print,' '
+print,' '
+print,'eli muotoa'
+print,'x1,y1,z1	 string1'
+print,'......'
+print,'xn,yn,zn	 stringn'
+print,' '
+
+
+openr,1,'testi4'
+x=fltarr(100) & y=x & z=x	;varauduttu sataan pisteeseen
+laatu=STRARR(100)		;luodaan merkkitieto-taulukko
+lask=0				
+dums=''
+
+while NOT EOF(1) DO BEGIN	;jatketaan jos ei ole kohdattu
+				;tiedoston loppua
+readf,1,dum1,dum2,dum3,dums	;luetaan skalaareina, silla vektorin
+				;alkiota ei voi suoraan lukea
+x(lask)=dum1
+y(lask)=dum2
+z(lask)=dum3
+laatu(lask)=dums
+lask=lask+1
+endwhile
+
+x=x(0:lask-1)
+y=y(0:lask-1)
+z=z(0:lask-1)
+laatu=laatu(0:lask-1)
+close,1
+
+print,'TARKISTUS:'
+print,'x'
+print,x
+print,'y'
+print,y
+print,'z'
+print,z
+print,'laatu'
+print,laatu
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
